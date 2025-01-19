@@ -10,6 +10,27 @@ const EventLandingPage = () => {
   const handleOverlayClick = () => {
     setIsPopupOpen(false);
   };
+  const [days, setDays] = useState(0);
+  const [hours, setHours] = useState(0);
+  const [mins, setMinutes] = useState(0);
+  const [secs, setSeconds] = useState(0);
+
+  const deadline = "January 25, 2025";
+
+  const getTime = () => {
+    const time = Date.parse(deadline) - Date.now();
+    if (time > 0) {
+      setDays(Math.floor(time / (1000 * 60 * 60 * 24)));
+      setHours(Math.floor((time / (1000 * 60 * 60)) % 24));
+      setMinutes(Math.floor((time / 1000 / 60) % 60));
+      setSeconds(Math.floor((time / 1000) % 60));
+    } else {
+      setDays(0);
+      setHours(0);
+      setMinutes(0);
+      setSeconds(0);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
