@@ -1,17 +1,33 @@
-import React from "react"; // Ensure React is imported
-import ReactDOM from "react-dom/client"; // For React 18+
+import React from "react";
+import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import EventLandingPage from "./App.jsx";
-import AdminPanel from "./components/Admin.jsx";
-import "./index.css"; // Import styles if applicable
+
+
+import "./index.css"; // Import your styles
+import AdminLogin from "./components/Admin_login/Admin_login.jsx";
+import Admin from "./components/Admin.jsx";
+import PrivateRoute from "./components/Private_routes.jsx";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
 root.render(
   <React.StrictMode>
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<EventLandingPage />} />
-        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/login" element={<AdminLogin />} />
+
+        {/* Private Route */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <Admin />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   </React.StrictMode>

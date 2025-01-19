@@ -1,21 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 const EventLandingPage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-  const handleRegisterClick = () => {
-    setIsPopupOpen(true);
-  };
-
-  const handleOverlayClick = () => {
-    setIsPopupOpen(false);
-  };
+  const [eventDetails, setEventDetails] = useState({});
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
   const [mins, setMinutes] = useState(0);
   const [secs, setSeconds] = useState(0);
 
-  const deadline = "January 25, 2025";
+  const deadline = eventDetails?.deadline || "January 25, 2025"; // Use dynamic deadline from fetched data
+
+  // Fetch event details from the backend
+  const fetchEventDetails = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/event-details", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("authToken")}`, // Assuming the token is stored in localStorage
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setEventDetails(data[0]); // Assuming the event data is returned as an array, get the first element
+      } else {
+        console.error("Failed to fetch event details", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching event details:", error);
+    }
+  };
 
   const getTime = () => {
     const time = Date.parse(deadline) - Date.now();
@@ -32,37 +44,115 @@ const EventLandingPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchEventDetails(); // Fetch event details when the component mounts
+    const interval = setInterval(getTime, 1000);
+    return () => clearInterval(interval);
+  }, [deadline]); // Re-run if the deadline changes
+
+  const handleRegisterClick = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handleOverlayClick = () => {
+    setIsPopupOpen(false);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Thank you for registering! Redirecting to Eventbrite.');
-    window.location.href = 'https://www.eventbrite.com/e/the-apex-agent-tickets-1198650107739?aff=oddtdtcreator';
+
+    // Fetch values from the form inputs
+    const formData = {
+      name: e.target.elements.name.value,
+      email: e.target.elements.email.value,
+    };
+
+    const registrationTime = new Date().toISOString();
+    console.log("Registration Time: ", registrationTime);
+
+    try {
+      const response = await fetch("http://localhost:5000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...formData, registrationTime }), // Send registration time along with form data
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Thank you for registering! Redirecting to Eventbrite.");
+        window.location.href =
+          "https://www.eventbrite.com/e/the-apex-agent-tickets-1198650107739?aff=oddtdtcreator";
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred while submitting the form. Please try again.");
+    }
   };
 
   return (
     <div className="bg-gradient-to-b from-blue-100 to-purple-100 min-h-screen font-sans text-gray-800">
       <header className="bg-blue-800 text-white text-center py-10 shadow-lg">
-        <h1 className="text-4xl font-bold drop-shadow-md">Join Real Estate Expert Gina Hanson</h1>
-        <p className="mt-2 text-xl">January 25, 2025 | 3:00 PM - 6:00 PM | Online</p>
+        <h1 className="text-4xl font-bold drop-shadow-md">
+          {eventDetails?.headline || "Join Real Estate Expert Gina Hanson"}
+        </h1>
+        <p className="mt-2 text-xl">
+          {eventDetails?.eventDetails_date || "January 25, 2025"} |{" "}
+          {eventDetails?.eventDetails_time || "3:00 PM - 6:00 PM"} |{" "}
+          {eventDetails?.eventDetails_location || "Online"}
+        </p>
+        <div className="flex justify-center space-x-4 mt-6">
+          <div className="text-center border p-2">
+            <h1 className="text-4xl font-bold">{days < 10 ? "0" + days : days}</h1>
+            <span className="text-sm">Days</span>
+          </div>
+          <div className="text-center border p-2">
+            <h1 className="text-4xl font-bold">{hours < 10 ? "0" + hours : hours}</h1>
+            <span className="text-sm">Hours</span>
+          </div>
+          <div className="text-center border p-2">
+            <h1 className="text-4xl font-bold">{mins < 10 ? "0" + mins : mins}</h1>
+            <span className="text-sm">Minutes</span>
+          </div>
+          <div className="text-center border p-2">
+            <h1 className="text-4xl font-bold">{secs < 10 ? "0" + secs : secs}</h1>
+            <span className="text-sm">Seconds</span>
+          </div>
+        </div>
       </header>
 
       <main className="max-w-4xl mx-auto my-8 p-6 bg-white rounded-lg shadow-lg">
         <section>
-          <h2 className="text-2xl font-semibold text-blue-800 border-b-2 border-yellow-500 pb-2 mb-4">What You’ll Learn</h2>
+          <h2 className="text-2xl font-semibold text-blue-800 border-b-2 border-yellow-500 pb-2 mb-4">
+            What You’ll Learn
+          </h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Why the CMA no longer delivers the insights you need in today’s competitive market</li>
-            <li>How to reframe your approach to market analysis and client engagement</li>
-            <li>The powerful tactics behind the "Ground and Pound" strategy to get more listings</li>
-            <li>How to build stronger relationships with clients and win more business than ever before</li>
-            <li>Key actionable steps to take immediately to enhance your market positioning</li>
+            {eventDetails?.whatYoullLearn ? (
+              eventDetails.whatYoullLearn.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))
+            ) : (
+              <li>Loading...</li>
+            )}
           </ul>
         </section>
 
         <section className="mt-8">
-          <h2 className="text-2xl font-semibold text-blue-800 border-b-2 border-yellow-500 pb-2 mb-4">Who Should Attend</h2>
+          <h2 className="text-2xl font-semibold text-blue-800 border-b-2 border-yellow-500 pb-2 mb-4">
+            Who Should Attend
+          </h2>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Real estate professionals looking to gain a competitive edge</li>
-            <li>Agents who want to understand the evolving landscape of real estate marketing and client acquisition</li>
-            <li>Brokers and team leaders aiming to stay ahead of industry trends</li>
+            {eventDetails?.whoShouldAttend ? (
+              eventDetails.whoShouldAttend.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))
+            ) : (
+              <li>Loading...</li>
+            )}
           </ul>
         </section>
 
@@ -83,16 +173,20 @@ const EventLandingPage = () => {
 
           <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-              <h2 className="text-2xl font-bold text-blue-800 mb-4">Register for the Event</h2>
+              <h2 className="text-2xl font-bold text-blue-800 mb-4">
+                Register for the Event
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <input
                   type="text"
+                  name="name"
                   placeholder="Your Name"
                   required
                   className="w-full border border-gray-300 rounded-lg p-3 text-lg"
                 />
                 <input
                   type="email"
+                  name="email"
                   placeholder="Your Email"
                   required
                   className="w-full border border-gray-300 rounded-lg p-3 text-lg"
