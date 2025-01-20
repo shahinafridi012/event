@@ -11,24 +11,14 @@ const EventLandingPage = () => {
 
   const deadline = eventDetails?.deadline || "January 25, 2025"; // Use dynamic deadline from fetched data
 
-  // Fetch event details from the backend
-  const fetchEventDetails = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/event-details", {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("authToken")}`, // Assuming the token is stored in localStorage
-        },
+  useEffect(() => {
+    fetch("http://localhost:5000/save-event-details")
+      .then(res => res.json())
+      .then(data => {
+        setEventDetails(data);
       });
-      const data = await response.json();
-      if (response.ok) {
-        setEventDetails(data[0]); // Assuming the event data is returned as an array, get the first element
-      } else {
-        console.error("Failed to fetch event details", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching event details:", error);
-    }
-  };
+  }, []);
+  console.log(eventDetails)
 
   const getTime = () => {
     const time = Date.parse(deadline) - Date.now();
@@ -46,10 +36,10 @@ const EventLandingPage = () => {
   };
 
   useEffect(() => {
-    fetchEventDetails(); // Fetch event details when the component mounts
+    getTime(); // Calculate the countdown time when the component mounts
     const interval = setInterval(getTime, 1000);
-    return () => clearInterval(interval);
-  }, [deadline]); // Re-run if the deadline changes
+    return () => clearInterval(interval); // Clear interval when the component unmounts
+  }, [deadline]);
 
   const handleRegisterClick = () => {
     setIsPopupOpen(true);
@@ -112,65 +102,61 @@ const EventLandingPage = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-blue-100 to-purple-100 min-h-screen font-sans text-gray-800">
-      <header className="bg-blue-800 text-white text-center py-10 shadow-lg">
-        <h1 className="text-4xl font-bold drop-shadow-md">
+    <div className=" p-20 mt-10">
+      <header className="">
+        <h1 className=" text-center text-4xl">
           {eventDetails?.headline || "Join Real Estate Expert Gina Hanson"}
         </h1>
-        <p className="mt-2 text-xl">
-          {eventDetails?.eventDetails_date || "January 25, 2025"} |{" "}
-          {eventDetails?.eventDetails_time || "3:00 PM - 6:00 PM"} |{" "}
-          {eventDetails?.eventDetails_location || "Online"}
+        <p className="mt-2 text-xl text-center">
+          {eventDetails?.date || "January 25, 2025"} |{" "}
+          {eventDetails?.time || "3:00 PM - 6:00 PM"} |{" "}
+          {eventDetails?.location || "Online"}
         </p>
         <div className="flex justify-center space-x-4 mt-6">
-          <div className="text-center border p-2">
-            <h1 className="text-4xl font-bold">{days < 10 ? "0" + days : days}</h1>
+          <div className="text-center  border p-2">
+            <h1 className="text-4xl font-bold">
+              {days < 10 ? "0" + days : days}
+            </h1>
             <span className="text-sm">Days</span>
           </div>
           <div className="text-center border p-2">
-            <h1 className="text-4xl font-bold">{hours < 10 ? "0" + hours : hours}</h1>
+            <h1 className="text-4xl font-bold">
+              {hours < 10 ? "0" + hours : hours}
+            </h1>
             <span className="text-sm">Hours</span>
           </div>
           <div className="text-center border p-2">
-            <h1 className="text-4xl font-bold">{mins < 10 ? "0" + mins : mins}</h1>
+            <h1 className="text-4xl font-bold">
+              {mins < 10 ? "0" + mins : mins}
+            </h1>
             <span className="text-sm">Minutes</span>
           </div>
           <div className="text-center border p-2">
-            <h1 className="text-4xl font-bold">{secs < 10 ? "0" + secs : secs}</h1>
+            <h1 className="text-4xl font-bold">
+              {secs < 10 ? "0" + secs : secs}
+            </h1>
             <span className="text-sm">Seconds</span>
           </div>
         </div>
       </header>
+      <div>
+        <img  className="w-[300px] mx-auto mt-5" src={eventDetails.imageLink} alt="" />
+      </div>
 
       <main className="max-w-4xl mx-auto my-8 p-6 bg-white rounded-lg shadow-lg">
+
+
+
         <section>
           <h2 className="text-2xl font-semibold text-blue-800 border-b-2 border-yellow-500 pb-2 mb-4">
-            What You’ll Learn
-          </h2>
-          <ul className="list-disc pl-6 space-y-2">
-            {eventDetails?.whatYoullLearn ? (
-              eventDetails.whatYoullLearn.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))
-            ) : (
-              <li>Loading...</li>
-            )}
-          </ul>
-        </section>
 
-        <section className="mt-8">
-          <h2 className="text-2xl font-semibold text-blue-800 border-b-2 border-yellow-500 pb-2 mb-4">
-            Who Should Attend
           </h2>
-          <ul className="list-disc pl-6 space-y-2">
-            {eventDetails?.whoShouldAttend ? (
-              eventDetails.whoShouldAttend.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))
-            ) : (
-              <li>Loading...</li>
-            )}
-          </ul>
+          <p
+            className="text-md"
+            dangerouslySetInnerHTML={{
+              __html: eventDetails?.description || "<p>Loading...</p>",
+            }}
+          />
         </section>
 
         <button
