@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Swal from 'sweetalert2';
 
 const Admin = () => {
   const [users, setUsers] = useState([]); // Single users state
@@ -88,9 +89,7 @@ const Admin = () => {
       whatYoullLearnTitle, 
       whoShouldAttendTitle
     };
-  
-   
-  
+
     fetch("http://localhost:5000/event-details", {
       method: "POST",
       headers: {
@@ -100,29 +99,41 @@ const Admin = () => {
     })
     .then((response) => {
       if (response.ok) {
-        alert("Updates saved successfully!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Updates saved successfully!',
+          showConfirmButton: false,
+          timer: 1500,
+        });
       } else {
-        alert("Failed to save updates. Please try again.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Failed to save updates. Please try again.',
+        });
       }
     })
     .catch((error) => {
       console.error("Error saving updates:", error);
-      alert("An error occurred while saving. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'An error occurred',
+        text: 'Please try again later.',
+      });
     });
   };
 
- 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const deadline = e.target.deadline.value;
     const headline = e.target.headline.value;
     const eventDetails_date = e.target.eventDetails_date.value;
     const eventDetails_time = e.target.eventDetails_time.value;
     const eventDetails_location = e.target.eventDetails_location.value;
     const title_1 = e.target.title_1.value;
-    const title_2 = e.target.title_2.value; // Added here
+    const title_2 = e.target.title_2.value;
 
-    // Capture the dynamic "What You'll Learn" and "Who Should Attend" list
     const whatYoullLearn = [...e.target.elements].filter(element => element.name === "what").map(element => element.value);
     const whoShouldAttend = [...e.target.elements].filter(element => element.name === "attendee").map(element => element.value);
 
@@ -132,15 +143,22 @@ const Admin = () => {
       eventDetails_date,
       eventDetails_time,
       eventDetails_location,
-      whatYoullLearn, // Include the dynamically captured list here
+      whatYoullLearn,
       whoShouldAttend,
       title_1,
-      title_2, // Include the dynamically captured "Who Should Attend" list here
+      title_2,
     };
 
-    console.log("Form data:", data); // This will show the full form data including both lists
+    console.log("Form data:", data);
 
-    // You can make an API call to your backend here to save the form data
+    Swal.fire({
+      icon: 'info',
+      title: 'Submitting your form...',
+      showConfirmButton: false,
+      timer: 2000,
+    });
+
+    // Add API call here if necessary
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2"; // Import sweetalert2
 
 const EventLandingPage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -82,15 +83,31 @@ const EventLandingPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Thank you for registering! Redirecting to Eventbrite.");
-        window.location.href =
-          "https://www.eventbrite.com/e/the-apex-agent-tickets-1198650107739?aff=oddtdtcreator";
+        Swal.fire({
+          title: "Thank you for registering!",
+          text: "Redirecting to Eventbrite.",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.href =
+            "https://www.eventbrite.com/e/the-apex-agent-tickets-1198650107739?aff=oddtdtcreator";
+        });
       } else {
-        alert(`Error: ${data.message}`);
+        Swal.fire({
+          title: "Error",
+          text: data.message,
+          icon: "error",
+          confirmButtonText: "Try Again",
+        });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("An error occurred while submitting the form. Please try again.");
+      Swal.fire({
+        title: "An error occurred",
+        text: "Please try again later.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   };
 
