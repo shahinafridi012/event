@@ -12,7 +12,7 @@ const EventLandingPage = () => {
   const deadline = eventDetails?.deadline || "January 25, 2025"; // Use dynamic deadline from fetched data
 
   useEffect(() => {
-    fetch("http://localhost:5000/save-event-details")
+    fetch("http://host:5000/save-event-details")
       .then(res => res.json())
       .then(data => {
         setEventDetails(data);
@@ -62,7 +62,7 @@ const EventLandingPage = () => {
     console.log("Registration Time: ", registrationTime);
 
     try {
-      const response = await fetch("http://localhost:5000/users", {
+      const response = await fetch("https://event-planner-server-w3vy.vercel.app/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +80,7 @@ const EventLandingPage = () => {
           confirmButtonText: "OK",
         }).then(() => {
           window.location.href =
-            "https://www.eventbrite.com/e/the-apex-agent-tickets-1198650107739?aff=oddtdtcreator";
+           eventDetails.webLink
         });
       } else {
         Swal.fire({
