@@ -17,7 +17,7 @@ const Admin = () => {
 
   // Fetch registered users
   useEffect(() => {
-    fetch("https://event-planner-server-w3vy.vercel.app/users")
+    fetch("https://event-planner-server.vercel.app/users")
       .then((res) => res.json())
       .then((data) => setUsers(data))
       .catch((error) => console.error("Error fetching users:", error));
@@ -46,7 +46,7 @@ const Admin = () => {
       webLink: linkData.link,
     };
 
-    fetch("https://event-planner-server-w3vy.vercel.app/save-event-details", {
+    fetch("https://event-planner-server.vercel.app/save-event-details", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

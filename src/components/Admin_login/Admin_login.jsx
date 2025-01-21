@@ -15,7 +15,7 @@ const Admin = () => {
 
   // Fetch registered users
   useEffect(() => {
-    fetch("https://event-planner-server-w3vy.vercel.app/users")
+    fetch("https://event-planner-server.vercel.app/users")
       .then((res) => res.json())
       .then((data) => setUsers(data))
       .catch((error) => console.error("Error fetching users:", error));
@@ -23,7 +23,7 @@ const Admin = () => {
 
   // Fetch event details
   useEffect(() => {
-    fetch("https://event-planner-server-w3vy.vercel.app/event-details")
+    fetch("https://event-planner-server.vercel.app/event-details")
       .then((res) => res.json())
       .then((data) => {
         if (data) {
@@ -50,7 +50,7 @@ const Admin = () => {
       editorContent,
     };
 
-    fetch("https://event-planner-server-w3vy.vercel.app/save-event-details", {
+    fetch("https://event-planner-server.vercel.app/save-event-details", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

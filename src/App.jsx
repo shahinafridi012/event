@@ -12,7 +12,7 @@ const EventLandingPage = () => {
   const deadline = eventDetails?.deadline || "January 25, 2025"; // Use dynamic deadline from fetched data
 
   useEffect(() => {
-    fetch("http://host:5000/save-event-details")
+    fetch("https://event-planner-server.vercel.app/save-event-details")
       .then(res => res.json())
       .then(data => {
         setEventDetails(data);
@@ -62,7 +62,7 @@ const EventLandingPage = () => {
     console.log("Registration Time: ", registrationTime);
 
     try {
-      const response = await fetch("https://event-planner-server-w3vy.vercel.app/users", {
+      const response = await fetch("https://event-planner-server.vercel.app/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
